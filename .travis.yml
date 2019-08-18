@@ -1,0 +1,14 @@
+language: node_js
+sudo: false
+services:
+  - docker
+node_js:
+  - 11
+install:
+  - docker pull rethinkdb
+  - npm install
+script:
+  - docker run -d -p 8181:8080 -p 28115:28015 --name featuretestdb rethinkdb
+  - PORT=8011 DB_HOST=$dockerHost DB_PORT=28115 DB_NAME=featuretests npm run migrate
+  - PORT=8011 DB_HOST=$dockerHost DB_PORT=28115 DB_NAME=featuretests npm run test:features
+  - npm run test:units
