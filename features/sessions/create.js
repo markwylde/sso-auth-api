@@ -94,7 +94,7 @@ test('create session - will create db record', async function (t) {
   const dbRecord = await db.table('sessions').get(response.data.sessionId)
 
   t.equal(response.status, 201, '201 status returned')
-  t.equal(dbRecord.user, 'testuser', 'db record had correct user property')
+  t.equal(dbRecord.user_id, 'testuser', 'db record had correct user property')
   t.equal(dbRecord.id, response.data.sessionId, 'db record had correct id property')
   t.equal(dbRecord.secret, response.data.sessionSecret, 'db record had correct secret property')
 

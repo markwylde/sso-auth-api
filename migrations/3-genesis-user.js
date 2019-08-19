@@ -1,7 +1,7 @@
 const {cryptPassword} = require('../lib/services/crypt')
 
 exports.up = async db => {
-  const password = await cryptPassword('pass')
+  const password = await cryptPassword('genesis')
 
   return Promise.all([
     db.table('users').insert({
@@ -9,10 +9,10 @@ exports.up = async db => {
       username: 'genesis',
       password,
       perms: [
-        'auth_admin:create',
-        'auth_admin:read',
-        'auth_admin:update',
-        'auth_admin:delete'
+        'sso:auth_admin:create',
+        'sso:auth_admin:read',
+        'sso:auth_admin:update',
+        'sso:auth_admin:delete'
       ],
       date_created: new Date()
     })

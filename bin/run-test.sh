@@ -1,3 +1,9 @@
+if [ $# -eq 0 ]
+  then
+    echo "No arguments supplied"
+    exit 
+fi
+
 existingContainer=`docker ps -qf name=featuretestdb`
 dockerHost=`docker-machine ip local`
 

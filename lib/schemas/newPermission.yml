@@ -1,0 +1,34 @@
+name: new_permission
+
+properties:
+  app_id:
+    title: App ID
+    type: string
+    minLength: 3
+
+  permission:
+    title: Permission
+    type: string
+    minLength: 1
+
+  title:
+    title: Title
+    type: string
+    minLength: 1
+
+  description:
+    title: Description
+    type: string
+    minLength: 1
+
+  group:
+    title: Group
+    type: string
+    minLength: 1
+
+required:
+  - app_id
+  - permission
+  - title
+  - description
+  - group
