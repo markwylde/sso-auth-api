@@ -1,3 +1,4 @@
+const uuidv4 = require('uuid/v4')
 const db = require('../../lib/services/database')
 
 async function setupTestUserWithSession ({permissions} = {}) {
@@ -7,8 +8,10 @@ async function setupTestUserWithSession ({permissions} = {}) {
     await db.table('users').get('testuser').delete()
   }
 
+  const userId = uuidv4()
+
   await db.table('users').insert({
-    id: `testuser`,
+    id: userId,
     username: `testuser`,
     password: `testpass`,
     perms: permissions || [],
@@ -18,7 +21,7 @@ async function setupTestUserWithSession ({permissions} = {}) {
   await db.table('sessions').insert({
     id: `testsessionid`,
     secret: `testsessionsecret`,
-    user_id: `testuser`,
+    user_id: userId,
     date_created: new Date()
   })
 

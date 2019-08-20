@@ -32,6 +32,7 @@
     "js-yaml": "^3.12.0",
     "node-mini-migrations": "1.0.0",
     "rethinkdbdash": "^2.3.31",
-    "route-parser": "0.0.5"
+    "route-parser": "0.0.5",
+    "uuid": "^3.3.3"
   }
 }

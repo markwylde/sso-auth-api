@@ -1,0 +1,10 @@
+name: new_app
+
+properties:
+  title:
+    title: Title
+    type: string
+    minLength: 3
+
+required:
+  - title

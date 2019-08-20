@@ -6,13 +6,13 @@ const db = require('../../lib/services/database')
 
 const url = `http://localhost:${process.env.PORT}/v1`
 
-test('create permission - will return validation error with empty body', async function (t) {
-  t.plan(7)
+test('create app - will return validation error with empty body', async function (t) {
+  t.plan(3)
 
   await app.start()
 
   const response = await axios({
-    url: `${url}/permissions`,
+    url: `${url}/apps`,
     method: 'post',
     json: true,
     validateStatus: () => true
@@ -21,70 +21,22 @@ test('create permission - will return validation error with empty body', async f
   await app.stop()
 
   t.equal(response.status, 422, '422 status returned')
-  t.equal(Object.keys(response.data.errors).length, 5, 'two errors existed')
-  t.ok(response.data.errors.app_id.includes('required'), 'app_id is required')
-  t.ok(response.data.errors.permission.includes('required'), 'permission is required')
+  t.equal(Object.keys(response.data.errors).length, 1, 'one error existed')
   t.ok(response.data.errors.title.includes('required'), 'title is required')
-  t.ok(response.data.errors.description.includes('required'), 'description is required')
-  t.ok(response.data.errors.group.includes('required'), 'group is required')
 })
 
-test('create permission - will return validation error with invalid data', async function (t) {
-  t.plan(7)
-
-  await app.start()
-
-  const response = await axios({
-    url: `${url}/permissions`,
-    method: 'post',
-    json: true,
-    validateStatus: () => true,
-    data: {
-      app_id: 'a',
-      permission: '',
-      title: '',
-      description: '',
-      group: ''
-    }
-  })
-
-  await app.stop()
-
-  t.equal(response.status, 422, '422 status returned')
-  t.equal(Object.keys(response.data.errors).length, 5, 'five errors existed')
-  t.ok(response.data.errors.app_id.includes('shorter than 3'), 'shorter than 3')
-  t.ok(response.data.errors.permission.includes('shorter than 1'), 'shorter than 1')
-  t.ok(response.data.errors.title.includes('shorter than 1'), 'shorter than 1')
-  t.ok(response.data.errors.description.includes('shorter than 1'), 'shorter than 1')
-  t.ok(response.data.errors.group.includes('shorter than 1'), 'shorter than 1')
-})
-
-test('create permission - will return validation error for duplicate id', async function (t) {
+test('create app - will return validation error with invalid data', async function (t) {
   t.plan(3)
 
   await app.start()
 
-  await db.table('permissions').insert({
-    id: `testapp:testpermission`,
-    app_id: 'testapp',
-    permission: `testpermission`,
-    title: 'testtitle',
-    description: 'testdescription',
-    group: 'testgroup',
-    date_created: new Date()
-  })
-
   const response = await axios({
-    url: `${url}/permissions`,
+    url: `${url}/apps`,
     method: 'post',
     json: true,
     validateStatus: () => true,
     data: {
-      app_id: 'testapp',
-      permission: 'testpermission',
-      title: 'testtitle',
-      description: 'testdescription',
-      group: 'testgroup',
+      title: ''
     }
   })
 
@@ -92,37 +44,59 @@ test('create permission - will return validation error for duplicate id', async 
 
   t.equal(response.status, 422, '422 status returned')
   t.equal(Object.keys(response.data.errors).length, 1, 'one error existed')
-  t.ok(response.data.errors.id.includes('already exists'), 'id already exists')
+  t.ok(response.data.errors.title.includes('shorter than 3'), 'shorter than 3')
 })
 
-test('create permission - will create and return permission', async function (t) {
-  t.plan(9)
+test('create app - will return validation error for duplicate title', async function (t) {
+  t.plan(3)
 
   await app.start()
 
+  await db.table('apps').insert({
+    title: 'testtitle',
+    date_created: new Date()
+  })
+
   const response = await axios({
-    url: `${url}/permissions`,
+    url: `${url}/apps`,
     method: 'post',
     json: true,
     validateStatus: () => true,
     data: {
-      app_id: 'testapp',
-      permission: 'testpermission',
-      title: 'testtitle',
-      description: 'testdescription',
-      group: 'testgroup'
+      title: 'testtitle'
+    }
+  })
+
+  await app.stop()
+
+  t.equal(response.status, 422, '422 status returned')
+  t.equal(Object.keys(response.data.errors).length, 1, 'one error existed')
+  t.ok(response.data.errors.title.includes('already exists'), 'title already exists')
+})
+
+test('create app - will create and return app', async function (t) {
+  t.plan(8)
+
+  await app.start()
+
+  const response = await axios({
+    url: `${url}/apps`,
+    method: 'post',
+    json: true,
+    validateStatus: () => true,
+    data: {
+      title: 'testtitle'
     }
   })
 
   await app.stop()
 
   t.equal(response.status, 201, '201 status returned')
-  t.equal(Object.keys(response.data).length, 7, 'seven fields returned')
+  t.equal(Object.keys(response.data).length, 6, 'six fields returned')
   t.ok(response.data.date_created, 'date_created existed')
-  t.equal(response.data.id, 'testapp:testpermission', 'id returned correctly')
-  t.equal(response.data.app_id, 'testapp', 'app_id returned correctly')
-  t.equal(response.data.permission, 'testpermission', 'permission returned correctly')
+  t.ok(response.data.id, 'id returned correctly')
+  t.ok(response.data.secret, 'secret returned correctly')
   t.equal(response.data.title, 'testtitle', 'title returned correctly')
-  t.equal(response.data.description, 'testdescription', 'description returned correctly')
-  t.equal(response.data.group, 'testgroup', 'group returned correctly')
+  t.equal(response.data.active, false, 'active returned correctly')
+  t.equal(response.data.activation_url, `${process.env.APP_PUBLIC_URL}/apps/${response.data.id}/activate`, 'activation_url returned correctly')
 })

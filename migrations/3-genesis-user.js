@@ -12,7 +12,8 @@ exports.up = async db => {
         'sso:auth_admin:create',
         'sso:auth_admin:read',
         'sso:auth_admin:update',
-        'sso:auth_admin:delete'
+        'sso:auth_admin:delete',
+        'sso:app:authorise'
       ],
       date_created: new Date()
     })
