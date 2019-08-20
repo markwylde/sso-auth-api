@@ -8,7 +8,8 @@ exports.up = async db => {
 
   await Promise.all([
     db.table('users').indexCreate('username'),
-    db.table('apps').indexCreate('title')
+    db.table('apps').indexCreate('title'),
+    db.table('apps').indexCreate('user_id')
   ])
 }
 
