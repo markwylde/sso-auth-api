@@ -9,11 +9,6 @@ const runFunctionMultipleTimes = require('../support/runFunctionMultipleTimes')
 
 const url = `http://localhost:${process.env.PORT}/v1`
 
-async function clearUsersAndSessions () {
-  await db.table('users').delete()
-  await db.table('sessions').delete()
-}
-
 async function setupTestUser () {
   return db.table('users').insert({
     id: `testuser`,
@@ -27,7 +22,6 @@ test('create session - will return validation error', async function (t) {
   t.plan(4)
 
   await app.start()
-  await clearUsersAndSessions()
 
   const response = await axios({
     url: `${url}/sessions`,
@@ -48,7 +42,6 @@ test('create session - will return session record', async function (t) {
   t.plan(4)
 
   await app.start()
-  await clearUsersAndSessions()
   await setupTestUser()
 
   const response = await axios({
@@ -75,7 +68,6 @@ test('create session - will create db record', async function (t) {
   t.plan(4)
 
   await app.start()
-  await clearUsersAndSessions()
   await setupTestUser()
 
   const response = await axios({
@@ -89,9 +81,9 @@ test('create session - will create db record', async function (t) {
     }
   })
 
-  await app.stop()
-
   const dbRecord = await db.table('sessions').get(response.data.sessionId)
+
+  await app.stop()
 
   t.equal(response.status, 201, '201 status returned')
   t.equal(dbRecord.user_id, 'testuser', 'db record had correct user property')

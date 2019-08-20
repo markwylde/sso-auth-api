@@ -8,15 +8,10 @@ const runFunctionMultipleTimes = require('../support/runFunctionMultipleTimes')
 
 const url = `http://localhost:${process.env.PORT}/v1`
 
-function clearUsers () {
-  return db.table('users').delete()
-}
-
 test('create user - will return validation error with empty body', async function (t) {
   t.plan(5)
 
   await app.start()
-  await clearUsers()
 
   const response = await axios({
     url: `${url}/users`,
@@ -38,7 +33,6 @@ test('create user - will return validation error with invalid data', async funct
   t.plan(5)
 
   await app.start()
-  await clearUsers()
 
   const response = await axios({
     url: `${url}/users`,

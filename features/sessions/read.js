@@ -9,11 +9,6 @@ const runFunctionMultipleTimes = require('../support/runFunctionMultipleTimes')
 
 const url = `http://localhost:${process.env.PORT}/v1`
 
-async function clearUsersAndSessions () {
-  await db.table('users').delete()
-  await db.table('sessions').delete()
-}
-
 async function setupTestUser () {
   return db.table('users').insert({
     id: 'testuser',
@@ -37,7 +32,6 @@ test('read session - will return 404 if session could not be found', async funct
   t.plan(1)
 
   await app.start()
-  await clearUsersAndSessions()
 
   const response = await axios({
     url: `${url}/sessions/current`,
@@ -59,7 +53,6 @@ test('read session - will return session when exists', async function (t) {
   t.plan(1)
 
   await app.start()
-  await clearUsersAndSessions()
   await setupTestUser()
   await setupTestSession()
 
@@ -83,7 +76,6 @@ test('read session - will return perms with session', async function (t) {
   t.plan(3)
 
   await app.start()
-  await clearUsersAndSessions()
   await setupTestUser()
   await setupTestSession()
 
@@ -109,7 +101,6 @@ test('create+read session - will return perms with session', async function (t) 
   t.plan(3)
 
   await app.start()
-  await clearUsersAndSessions()
   await setupTestUser()
 
   const session = await axios({

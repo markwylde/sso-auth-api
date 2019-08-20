@@ -9,8 +9,6 @@ const runFunctionMultipleTimes = require('../support/runFunctionMultipleTimes')
 const url = `http://localhost:${process.env.PORT}/v1`
 
 async function setupTestPermissions (userCount) {
-  await db.table('permissions').delete()
-
   return runFunctionMultipleTimes(userCount, num => {
     return db.table('permissions').insert({
       id: `testapp:testpermission${num}`,

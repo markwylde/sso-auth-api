@@ -9,10 +9,6 @@ const runFunctionMultipleTimes = require('../support/runFunctionMultipleTimes')
 
 const url = `http://localhost:${process.env.PORT}/v1`
 
-function clearUsers () {
-  return db.table('users').delete()
-}
-
 async function setupTestUsers (userCount) {
   return runFunctionMultipleTimes(userCount, num => {
     return db.table('users').insert({
@@ -29,8 +25,6 @@ test('list user - will return unauthorised if missing permission', async functio
   t.plan(2)
 
   await app.start()
-
-  await clearUsers()
 
   const sessionHeaders = await setupTestUserWithSession({
     permissions: []
@@ -53,8 +47,6 @@ test('list user - will show one user if only one exists', async function (t) {
 
   await app.start()
 
-  await clearUsers()
-
   const sessionHeaders = await setupTestUserWithSession({
     permissions: ['sso:auth_admin:read']
   })
@@ -71,7 +63,6 @@ test('list user - will show five users', async function (t) {
   t.plan(2)
 
   await app.start()
-  await clearUsers()
 
   const sessionHeaders = await setupTestUserWithSession({
     permissions: ['sso:auth_admin:read']
@@ -91,8 +82,6 @@ test('list user - item has the correct properties', async function (t) {
   t.plan(6)
 
   await app.start()
-
-  await clearUsers()
 
   const sessionHeaders = await setupTestUserWithSession({
     permissions: ['sso:auth_admin:read']
