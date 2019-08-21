@@ -110,3 +110,27 @@ test('activate app - will activate an app', async function (t) {
 
   t.equal(response.status, 200, '200 status returned')
 })
+
+test('activate app - will activate an app as an admin', async function (t) {
+  t.plan(1)
+
+  await app.start()
+
+  const testUser = await setupTestUserWithSession({
+    permissions: ['sso:auth_admin:update']
+  })
+
+  const testApp = await createTestApp()
+
+  const response = await axios({
+    url: `${url}/apps/${testApp.id}/activate`,
+    method: 'post',
+    json: true,
+    validateStatus: () => true,
+    headers: testUser
+  })
+
+  await app.stop()
+
+  t.equal(response.status, 200, '200 status returned')
+})
