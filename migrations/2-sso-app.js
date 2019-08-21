@@ -40,6 +40,15 @@ exports.up = async db => {
       description: 'Delete entities in the auth administration',
       group: 'Admin',
       date_created: new Date()
+    }),
+    db.table('permissions').insert({
+      id: 'sso:app:authorise',
+      app_id: 'sso',
+      permission: 'app:authorise',
+      title: 'Apps - Authorise',
+      description: 'Authorise and associate apps to your account',
+      group: 'Admin',
+      date_created: new Date()
     })
   ])
 }
@@ -50,6 +59,7 @@ exports.down = db => {
     db.table('permissions').get('sso:auth_admin:create').delete(),
     db.table('permissions').get('sso:auth_admin:read').delete(),
     db.table('permissions').get('sso:auth_admin:update').delete(),
-    db.table('permissions').get('sso:auth_admin:delete').delete()
+    db.table('permissions').get('sso:auth_admin:delete').delete(),
+    db.table('permissions').get('sso:app:authorise').delete()
   ])
 }
