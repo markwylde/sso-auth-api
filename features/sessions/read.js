@@ -72,6 +72,28 @@ test('read session - will return session when exists', async function (t) {
   t.equal(response.status, 200, '200 status returned')
 })
 
+test('read session - will return session when exists from cookie', async function (t) {
+  t.plan(1)
+
+  await app.start()
+  await setupTestUser()
+  await setupTestSession()
+
+  const response = await axios({
+    url: `${url}/sessions/current`,
+    headers: {
+      'Cookie': 'sessionId=testsessionid; sessionSecret=testsessionsecret;',
+    },
+    method: 'get',
+    json: true,
+    validateStatus: () => true
+  })
+
+  await app.stop()
+
+  t.equal(response.status, 200, '200 status returned')
+})
+
 test('read session - will return perms with session', async function (t) {
   t.plan(3)
 
