@@ -1,16 +1,14 @@
 const test = require('tape')
-const axios = require('axios')
-const uuidv4 = require('uuid/v4')
 
+const axios = require('../support/httpRequest')
 const app = require('../support/app')
-const db = require('../../lib/services/database')
 
 const setupTestUserWithSession = require('../support/setupTestUserWithSession')
 const runFunctionMultipleTimes = require('../support/runFunctionMultipleTimes')
 
 const url = `http://localhost:${process.env.PORT}/v1`
 
-async function setupTestApps (appCount, opts={}) {
+async function setupTestApps (appCount, opts = {}) {
   return runFunctionMultipleTimes(appCount, async num => {
     const appItem = await axios({
       url: `${url}/apps`,
@@ -29,7 +27,7 @@ async function setupTestApps (appCount, opts={}) {
         method: 'post',
         json: true,
         validateStatus: () => true,
-        headers: opts.headers,
+        headers: opts.headers
       })
     }
   })
@@ -42,7 +40,7 @@ test('list app - will return unauthorised if no session', async function (t) {
 
   const response = await axios(`${url}/users`, {
     json: true,
-    validateStatus: () => true,
+    validateStatus: () => true
   })
 
   await app.stop()
@@ -60,10 +58,10 @@ test('list app - will show one own app', async function (t) {
     permissions: ['sso:app:authorise']
   })
 
-  await setupTestApps(1, {headers: sessionHeaders, activate: true})
+  await setupTestApps(1, { headers: sessionHeaders, activate: true })
   await setupTestApps(5)
 
-  const response = await axios(`${url}/apps`, {json: true, headers: sessionHeaders})
+  const response = await axios(`${url}/apps`, { json: true, headers: sessionHeaders })
 
   await app.stop()
 
@@ -90,10 +88,10 @@ test('list app - will show multiple own apps', async function (t) {
     permissions: ['sso:app:authorise']
   })
 
-  await setupTestApps(2, {headers: sessionHeaders, activate: true})
+  await setupTestApps(2, { headers: sessionHeaders, activate: true })
   await setupTestApps(5)
 
-  const response = await axios(`${url}/apps`, {json: true, headers: sessionHeaders})
+  const response = await axios(`${url}/apps`, { json: true, headers: sessionHeaders })
 
   await app.stop()
 
@@ -111,10 +109,10 @@ test('list app - will show all apps to admins', async function (t) {
     permissions: ['sso:auth_admin:read', 'sso:auth_admin:update']
   })
 
-  await setupTestApps(1, {headers: sessionHeaders, activate: true, prefix: 'authed'})
+  await setupTestApps(1, { headers: sessionHeaders, activate: true, prefix: 'authed' })
   await setupTestApps(5)
 
-  const response = await axios(`${url}/apps`, {json: true, headers: sessionHeaders})
+  const response = await axios(`${url}/apps`, { json: true, headers: sessionHeaders })
 
   await app.stop()
 

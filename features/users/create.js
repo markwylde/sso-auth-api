@@ -1,10 +1,8 @@
 const test = require('tape')
-const axios = require('axios')
 
+const axios = require('../support/httpRequest')
 const app = require('../support/app')
 const db = require('../../lib/services/database')
-
-const runFunctionMultipleTimes = require('../support/runFunctionMultipleTimes')
 
 const url = `http://localhost:${process.env.PORT}/v1`
 

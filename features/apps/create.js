@@ -1,6 +1,6 @@
 const test = require('tape')
-const axios = require('axios')
 
+const axios = require('../support/httpRequest')
 const app = require('../support/app')
 const db = require('../../lib/services/database')
 

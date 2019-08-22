@@ -1,11 +1,9 @@
 const test = require('tape')
-const axios = require('axios')
 
+const axios = require('../support/httpRequest')
 const app = require('../support/app')
 const db = require('../../lib/services/database')
-const {cryptPassword} = require('../../lib/services/crypt')
-
-const runFunctionMultipleTimes = require('../support/runFunctionMultipleTimes')
+const { cryptPassword } = require('../../lib/services/crypt')
 
 const url = `http://localhost:${process.env.PORT}/v1`
 
@@ -63,7 +61,6 @@ test('create session - will return session record', async function (t) {
   t.ok(response.data.sessionSecret, 'sessionSecret exists')
 })
 
-
 test('create session - will create db record', async function (t) {
   t.plan(4)
 
@@ -89,5 +86,4 @@ test('create session - will create db record', async function (t) {
   t.equal(dbRecord.user_id, 'testuser', 'db record had correct user property')
   t.equal(dbRecord.id, response.data.sessionId, 'db record had correct id property')
   t.equal(dbRecord.secret, response.data.sessionSecret, 'db record had correct secret property')
-
 })

@@ -1,4 +1,4 @@
-const {cryptPassword} = require('../lib/services/crypt')
+const { cryptPassword } = require('../lib/services/crypt')
 
 exports.up = async db => {
   const password = await cryptPassword('genesis')
@@ -22,6 +22,6 @@ exports.up = async db => {
 
 exports.down = db => {
   return Promise.all([
-    db.table('users').filter({id: 'genesis'}).delete()
+    db.table('users').filter({ id: 'genesis' }).delete()
   ])
 }

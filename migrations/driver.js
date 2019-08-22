@@ -25,11 +25,11 @@ module.exports = {
 
   getMigrationState: id => db.table('migrations').get(id),
 
-  setMigrationUp: id => db.table('migrations').insert({id}),
+  setMigrationUp: id => db.table('migrations').insert({ id }),
 
   setMigrationDown: id => db.table('migrations').get(id).delete(),
 
-  get db() {
+  get db () {
     return db
   }
 }

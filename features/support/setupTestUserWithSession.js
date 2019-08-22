@@ -1,7 +1,7 @@
 const uuidv4 = require('uuid/v4')
 const db = require('../../lib/services/database')
 
-async function setupTestUserWithSession ({permissions} = {}) {
+async function setupTestUserWithSession ({ permissions } = {}) {
   const existingUser = await db.table('users').get('testuser')
 
   if (existingUser) {

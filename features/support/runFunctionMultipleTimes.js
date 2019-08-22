@@ -1,5 +1,5 @@
 function runFunctionMultipleTimes (times, fn) {
-  let promises = []
+  const promises = []
 
   for (let i = 1; i <= times; i++) {
     promises.push(fn(i))

@@ -1,11 +1,9 @@
 const test = require('tape')
-const axios = require('axios')
 
+const axios = require('../support/httpRequest')
 const app = require('../support/app')
 const db = require('../../lib/services/database')
-const {cryptPassword} = require('../../lib/services/crypt')
-
-const runFunctionMultipleTimes = require('../support/runFunctionMultipleTimes')
+const { cryptPassword } = require('../../lib/services/crypt')
 
 const url = `http://localhost:${process.env.PORT}/v1`
 
@@ -37,7 +35,7 @@ test('read session - will return 404 if session could not be found', async funct
     url: `${url}/sessions/current`,
     headers: {
       'x-session-id': 'test',
-      'x-session-secret': 'test',
+      'x-session-secret': 'test'
     },
     method: 'get',
     json: true,
@@ -60,7 +58,7 @@ test('read session - will return session when exists', async function (t) {
     url: `${url}/sessions/current`,
     headers: {
       'x-session-id': 'testsessionid',
-      'x-session-secret': 'testsessionsecret',
+      'x-session-secret': 'testsessionsecret'
     },
     method: 'get',
     json: true,
@@ -82,7 +80,7 @@ test('read session - will return session when exists from cookie', async functio
   const response = await axios({
     url: `${url}/sessions/current`,
     headers: {
-      'Cookie': 'sessionId=testsessionid; sessionSecret=testsessionsecret;',
+      Cookie: 'sessionId=testsessionid; sessionSecret=testsessionsecret;'
     },
     method: 'get',
     json: true,
@@ -105,7 +103,7 @@ test('read session - will return perms with session', async function (t) {
     url: `${url}/sessions/current`,
     headers: {
       'x-session-id': 'testsessionid',
-      'x-session-secret': 'testsessionsecret',
+      'x-session-secret': 'testsessionsecret'
     },
     method: 'get',
     json: true,
@@ -140,7 +138,7 @@ test('create+read session - will return perms with session', async function (t) 
     url: `${url}/sessions/current`,
     headers: {
       'x-session-id': session.data.sessionId,
-      'x-session-secret': session.data.sessionSecret,
+      'x-session-secret': session.data.sessionSecret
     },
     method: 'get',
     json: true,

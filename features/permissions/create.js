@@ -1,6 +1,6 @@
 const test = require('tape')
-const axios = require('axios')
 
+const axios = require('../support/httpRequest')
 const app = require('../support/app')
 const db = require('../../lib/services/database')
 
@@ -84,7 +84,7 @@ test('create permission - will return validation error for duplicate id', async 
       permission: 'testpermission',
       title: 'testtitle',
       description: 'testdescription',
-      group: 'testgroup',
+      group: 'testgroup'
     }
   })
 

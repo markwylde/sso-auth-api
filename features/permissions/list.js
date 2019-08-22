@@ -1,6 +1,6 @@
 const test = require('tape')
-const axios = require('axios')
 
+const axios = require('../support/httpRequest')
 const app = require('../support/app')
 const db = require('../../lib/services/database')
 
@@ -25,7 +25,7 @@ test('list permission - will show no permissions if none exist', async function 
   await app.start()
   await setupTestPermissions(0)
 
-  const response = await axios(`${url}/permissions`, {json: true})
+  const response = await axios(`${url}/permissions`, { json: true })
 
   await app.stop()
 
@@ -39,7 +39,7 @@ test('list permission - will show five permissions', async function (t) {
   await app.start()
   await setupTestPermissions(5)
 
-  const response = await axios(`${url}/permissions`, {json: true})
+  const response = await axios(`${url}/permissions`, { json: true })
 
   await app.stop()
 
@@ -54,7 +54,7 @@ test('list permission - item has the correct properties', async function (t) {
 
   await setupTestPermissions(1)
 
-  const response = await axios(`${url}/permissions`, {json: true})
+  const response = await axios(`${url}/permissions`, { json: true })
 
   await app.stop()
 
