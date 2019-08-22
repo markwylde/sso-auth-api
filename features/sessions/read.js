@@ -1,6 +1,6 @@
 const test = require('tape')
 
-const axios = require('../support/httpRequest')
+const httpRequest = require('../support/httpRequest')
 const app = require('../support/app')
 const db = require('../../lib/services/database')
 const { cryptPassword } = require('../../lib/services/crypt')
@@ -17,10 +17,11 @@ async function setupTestUser () {
   })
 }
 
-async function setupTestSession () {
+async function setupTestSession (opts = {}) {
   return db.table('sessions').insert({
     id: 'testsessionid',
     user_id: 'testuser',
+    app_id: opts.appId || 'sso',
     secret: 'testsessionsecret',
     date_created: new Date()
   })
@@ -31,7 +32,7 @@ test('read session - will return 404 if session could not be found', async funct
 
   await app.start()
 
-  const response = await axios({
+  const response = await httpRequest({
     url: `${url}/sessions/current`,
     headers: {
       'x-session-id': 'test',
@@ -54,7 +55,7 @@ test('read session - will return session when exists', async function (t) {
   await setupTestUser()
   await setupTestSession()
 
-  const response = await axios({
+  const response = await httpRequest({
     url: `${url}/sessions/current`,
     headers: {
       'x-session-id': 'testsessionid',
@@ -70,6 +71,30 @@ test('read session - will return session when exists', async function (t) {
   t.equal(response.status, 200, '200 status returned')
 })
 
+test('read session - will return not found when not sso session', async function (t) {
+  t.plan(2)
+
+  await app.start()
+  await setupTestUser()
+  await setupTestSession({ appId: 'otherthansso' })
+
+  const response = await httpRequest({
+    url: `${url}/sessions/current`,
+    headers: {
+      'x-session-id': 'testsessionid',
+      'x-session-secret': 'testsessionsecret'
+    },
+    method: 'get',
+    json: true,
+    validateStatus: () => true
+  })
+
+  await app.stop()
+
+  t.equal(response.status, 404, '404 status returned')
+  t.deepEqual(response.data, {}, 'no body returned')
+})
+
 test('read session - will return session when exists from cookie', async function (t) {
   t.plan(1)
 
@@ -77,7 +102,7 @@ test('read session - will return session when exists from cookie', async functio
   await setupTestUser()
   await setupTestSession()
 
-  const response = await axios({
+  const response = await httpRequest({
     url: `${url}/sessions/current`,
     headers: {
       Cookie: 'sessionId=testsessionid; sessionSecret=testsessionsecret;'
@@ -99,7 +124,7 @@ test('read session - will return perms with session', async function (t) {
   await setupTestUser()
   await setupTestSession()
 
-  const response = await axios({
+  const response = await httpRequest({
     url: `${url}/sessions/current`,
     headers: {
       'x-session-id': 'testsessionid',
@@ -123,7 +148,7 @@ test('create+read session - will return perms with session', async function (t) 
   await app.start()
   await setupTestUser()
 
-  const session = await axios({
+  const session = await httpRequest({
     url: `${url}/sessions`,
     method: 'post',
     json: true,
@@ -134,7 +159,7 @@ test('create+read session - will return perms with session', async function (t) 
     }
   })
 
-  const response = await axios({
+  const response = await httpRequest({
     url: `${url}/sessions/current`,
     headers: {
       'x-session-id': session.data.sessionId,

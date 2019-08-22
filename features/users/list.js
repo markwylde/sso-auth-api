@@ -1,6 +1,6 @@
 const test = require('tape')
 
-const axios = require('../support/httpRequest')
+const httpRequest = require('../support/httpRequest')
 const app = require('../support/app')
 const db = require('../../lib/services/database')
 
@@ -30,7 +30,7 @@ test('list user - will return unauthorised if missing permission', async functio
     permissions: []
   })
 
-  const response = await axios(`${url}/users`, {
+  const response = await httpRequest(`${url}/users`, {
     json: true,
     validateStatus: () => true,
     headers: sessionHeaders
@@ -51,7 +51,7 @@ test('list user - will show one user if only one exists', async function (t) {
     permissions: ['sso:auth_admin:read']
   })
 
-  const response = await axios(`${url}/users`, { json: true, headers: sessionHeaders })
+  const response = await httpRequest(`${url}/users`, { json: true, headers: sessionHeaders })
 
   await app.stop()
 
@@ -70,7 +70,7 @@ test('list user - will show five users', async function (t) {
 
   await setupTestUsers(4) // + 1 authorised user to execute the test
 
-  const response = await axios(`${url}/users`, { json: true, headers: sessionHeaders })
+  const response = await httpRequest(`${url}/users`, { json: true, headers: sessionHeaders })
 
   await app.stop()
 
@@ -89,7 +89,7 @@ test('list user - item has the correct properties', async function (t) {
 
   await setupTestUsers(1)
 
-  const response = await axios(`${url}/users`, { json: true, headers: sessionHeaders })
+  const response = await httpRequest(`${url}/users`, { json: true, headers: sessionHeaders })
 
   await app.stop()
 

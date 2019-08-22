@@ -1,6 +1,6 @@
 const test = require('tape')
 
-const axios = require('../support/httpRequest')
+const httpRequests = require('../support/httpRequest')
 const app = require('../support/app')
 const db = require('../../lib/services/database')
 
@@ -11,7 +11,7 @@ test('create permission - will return validation error with empty body', async f
 
   await app.start()
 
-  const response = await axios({
+  const response = await httpRequests({
     url: `${url}/permissions`,
     method: 'post',
     json: true,
@@ -34,7 +34,7 @@ test('create permission - will return validation error with invalid data', async
 
   await app.start()
 
-  const response = await axios({
+  const response = await httpRequests({
     url: `${url}/permissions`,
     method: 'post',
     json: true,
@@ -74,7 +74,7 @@ test('create permission - will return validation error for duplicate id', async 
     date_created: new Date()
   })
 
-  const response = await axios({
+  const response = await httpRequests({
     url: `${url}/permissions`,
     method: 'post',
     json: true,
@@ -100,7 +100,7 @@ test('create permission - will create and return permission', async function (t)
 
   await app.start()
 
-  const response = await axios({
+  const response = await httpRequests({
     url: `${url}/permissions`,
     method: 'post',
     json: true,

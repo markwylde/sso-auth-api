@@ -1,6 +1,6 @@
 const test = require('tape')
 
-const axios = require('../support/httpRequest')
+const httpRequest = require('../support/httpRequest')
 const app = require('../support/app')
 const db = require('../../lib/services/database')
 
@@ -11,7 +11,7 @@ test('create app - will return validation error with empty body', async function
 
   await app.start()
 
-  const response = await axios({
+  const response = await httpRequest({
     url: `${url}/apps`,
     method: 'post',
     json: true,
@@ -30,7 +30,7 @@ test('create app - will return validation error with invalid data', async functi
 
   await app.start()
 
-  const response = await axios({
+  const response = await httpRequest({
     url: `${url}/apps`,
     method: 'post',
     json: true,
@@ -57,7 +57,7 @@ test('create app - will return validation error for duplicate title', async func
     date_created: new Date()
   })
 
-  const response = await axios({
+  const response = await httpRequest({
     url: `${url}/apps`,
     method: 'post',
     json: true,
@@ -79,7 +79,7 @@ test('create app - will create and return app', async function (t) {
 
   await app.start()
 
-  const response = await axios({
+  const response = await httpRequest({
     url: `${url}/apps`,
     method: 'post',
     json: true,

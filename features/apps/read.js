@@ -1,39 +1,12 @@
 const test = require('tape')
 
-const axios = require('../support/httpRequest')
+const httpRequest = require('../support/httpRequest')
 const app = require('../support/app')
 
 const setupTestUserWithSession = require('../support/setupTestUserWithSession')
-const runFunctionMultipleTimes = require('../support/runFunctionMultipleTimes')
+const setupTestApps = require('../support/setupTestApps')
 
 const url = `http://localhost:${process.env.PORT}/v1`
-
-async function setupTestApps (appCount, opts = {}) {
-  return runFunctionMultipleTimes(appCount, async num => {
-    const appItem = await axios({
-      url: `${url}/apps`,
-      method: 'post',
-      json: true,
-      validateStatus: () => true,
-      headers: opts && opts.headers,
-      data: {
-        title: `testtitle${opts.prefix || ''}${num}`
-      }
-    })
-
-    if (opts && opts.activate) {
-      await axios({
-        url: `${url}/apps/${appItem.data.id}/activate`,
-        method: 'post',
-        json: true,
-        validateStatus: () => true,
-        headers: opts.headers
-      })
-    }
-
-    return appItem
-  })
-}
 
 test('read app - will return 404 if session could not be found', async function (t) {
   t.plan(1)
@@ -44,7 +17,7 @@ test('read app - will return 404 if session could not be found', async function 
     permissions: []
   })
 
-  const response = await axios({
+  const response = await httpRequest({
     url: `${url}/apps/notexisting`,
     headers: sessionHeaders,
     method: 'get',
@@ -69,7 +42,7 @@ test('read app - will return app when exists', async function (t) {
   const apps = await setupTestApps(1, { headers: sessionHeaders, activate: true })
   const appId = apps[0].data.id
 
-  const response = await axios({
+  const response = await httpRequest({
     url: `${url}/apps/${appId}`,
     headers: sessionHeaders,
     method: 'get',

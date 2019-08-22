@@ -1,6 +1,6 @@
 const test = require('tape')
 
-const axios = require('../support/httpRequest')
+const httpRequest = require('../support/httpRequest')
 const app = require('../support/app')
 
 const setupTestUserWithSession = require('../support/setupTestUserWithSession')
@@ -8,7 +8,7 @@ const setupTestUserWithSession = require('../support/setupTestUserWithSession')
 const url = `http://localhost:${process.env.PORT}/v1`
 
 async function createTestApp () {
-  const response = await axios({
+  const response = await httpRequest({
     url: `${url}/apps`,
     method: 'post',
     json: true,
@@ -28,7 +28,7 @@ test('activate app - no session will return unauthorised', async function (t) {
 
   const testApp = await createTestApp()
 
-  const response = await axios({
+  const response = await httpRequest({
     url: `${url}/apps/${testApp.id}/activate`,
     method: 'post',
     json: true,
@@ -51,7 +51,7 @@ test('activate app - no permission will return unauthorised', async function (t)
 
   const testApp = await createTestApp()
 
-  const response = await axios({
+  const response = await httpRequest({
     url: `${url}/apps/${testApp.id}/activate`,
     method: 'post',
     json: true,
@@ -73,7 +73,7 @@ test('activate app - will return not found error', async function (t) {
     permissions: ['sso:app:authorise']
   })
 
-  const response = await axios({
+  const response = await httpRequest({
     url: `${url}/apps/doesnotexist/activate`,
     method: 'post',
     json: true,
@@ -97,7 +97,7 @@ test('activate app - will activate an app', async function (t) {
 
   const testApp = await createTestApp()
 
-  const response = await axios({
+  const response = await httpRequest({
     url: `${url}/apps/${testApp.id}/activate`,
     method: 'post',
     json: true,
@@ -121,7 +121,7 @@ test('activate app - will activate an app as an admin', async function (t) {
 
   const testApp = await createTestApp()
 
-  const response = await axios({
+  const response = await httpRequest({
     url: `${url}/apps/${testApp.id}/activate`,
     method: 'post',
     json: true,

@@ -1,6 +1,6 @@
 const test = require('tape')
 
-const axios = require('../support/httpRequest')
+const httpRequest = require('../support/httpRequest')
 const app = require('../support/app')
 const db = require('../../lib/services/database')
 const { cryptPassword } = require('../../lib/services/crypt')
@@ -21,7 +21,7 @@ test('create session - will return validation error', async function (t) {
 
   await app.start()
 
-  const response = await axios({
+  const response = await httpRequest({
     url: `${url}/sessions`,
     method: 'post',
     json: true,
@@ -42,7 +42,7 @@ test('create session - will return session record', async function (t) {
   await app.start()
   await setupTestUser()
 
-  const response = await axios({
+  const response = await httpRequest({
     url: `${url}/sessions`,
     method: 'post',
     json: true,
@@ -62,12 +62,12 @@ test('create session - will return session record', async function (t) {
 })
 
 test('create session - will create db record', async function (t) {
-  t.plan(4)
+  t.plan(5)
 
   await app.start()
   await setupTestUser()
 
-  const response = await axios({
+  const response = await httpRequest({
     url: `${url}/sessions`,
     method: 'post',
     json: true,
@@ -84,6 +84,7 @@ test('create session - will create db record', async function (t) {
 
   t.equal(response.status, 201, '201 status returned')
   t.equal(dbRecord.user_id, 'testuser', 'db record had correct user property')
+  t.equal(dbRecord.app_id, 'sso', 'db record had correct app id')
   t.equal(dbRecord.id, response.data.sessionId, 'db record had correct id property')
   t.equal(dbRecord.secret, response.data.sessionSecret, 'db record had correct secret property')
 })
