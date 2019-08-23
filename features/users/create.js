@@ -1,7 +1,7 @@
 const test = require('tape')
 
-const httpRequest = require('../support/httpRequest')
-const app = require('../support/app')
+const httpRequest = require('../_support/httpRequest')
+const app = require('../_support/app')
 const db = require('../../lib/services/database')
 
 const url = `http://localhost:${process.env.PORT}/v1`

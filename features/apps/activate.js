@@ -1,35 +1,27 @@
 const test = require('tape')
 
-const httpRequest = require('../support/httpRequest')
-const app = require('../support/app')
+const httpRequest = require('../_support/httpRequest')
+const app = require('../_support/app')
 
-const setupTestUserWithSession = require('../support/setupTestUserWithSession')
+const populateTestUser = require('../_support/populates/populateTestUser')
+const populateTestSession = require('../_support/populates/populateTestSession')
+const populateTestApp = require('../_support/populates/populateTestApp')
 
 const url = `http://localhost:${process.env.PORT}/v1`
-
-async function createTestApp () {
-  const response = await httpRequest({
-    url: `${url}/apps`,
-    method: 'post',
-    json: true,
-    validateStatus: () => true,
-    data: {
-      title: 'testapp'
-    }
-  })
-
-  return response.data
-}
 
 test('activate app - no session will return unauthorised', async function (t) {
   t.plan(1)
 
   await app.start()
 
-  const testApp = await createTestApp()
+  const myUser = await populateTestUser({
+    perms: ['sso:app:authorise']
+  })
+  const mySession = await populateTestSession(myUser)
+  const myApp = await populateTestApp({ session: mySession })
 
   const response = await httpRequest({
-    url: `${url}/apps/${testApp.id}/activate`,
+    url: `${url}/apps/${myApp.id}/activate`,
     method: 'post',
     json: true,
     validateStatus: () => true
@@ -45,18 +37,18 @@ test('activate app - no permission will return unauthorised', async function (t)
 
   await app.start()
 
-  const testUser = await setupTestUserWithSession({
-    permissions: []
+  const myUser = await populateTestUser({
+    perms: []
   })
-
-  const testApp = await createTestApp()
+  const mySession = await populateTestSession(myUser)
+  const myApp = await populateTestApp()
 
   const response = await httpRequest({
-    url: `${url}/apps/${testApp.id}/activate`,
+    url: `${url}/apps/${myApp.id}/activate`,
     method: 'post',
     json: true,
     validateStatus: () => true,
-    headers: testUser
+    headers: mySession.headers
   })
 
   await app.stop()
@@ -69,16 +61,17 @@ test('activate app - will return not found error', async function (t) {
 
   await app.start()
 
-  const testUser = await setupTestUserWithSession({
-    permissions: ['sso:app:authorise']
+  const myUser = await populateTestUser({
+    perms: ['sso:app:authorise']
   })
+  const mySession = await populateTestSession(myUser)
 
   const response = await httpRequest({
     url: `${url}/apps/doesnotexist/activate`,
     method: 'post',
     json: true,
     validateStatus: () => true,
-    headers: testUser
+    headers: mySession.headers
   })
 
   await app.stop()
@@ -91,18 +84,18 @@ test('activate app - will activate an app', async function (t) {
 
   await app.start()
 
-  const testUser = await setupTestUserWithSession({
-    permissions: ['sso:app:authorise']
+  const myUser = await populateTestUser({
+    perms: ['sso:app:authorise']
   })
-
-  const testApp = await createTestApp()
+  const mySession = await populateTestSession(myUser)
+  const myApp = await populateTestApp()
 
   const response = await httpRequest({
-    url: `${url}/apps/${testApp.id}/activate`,
+    url: `${url}/apps/${myApp.id}/activate`,
     method: 'post',
     json: true,
     validateStatus: () => true,
-    headers: testUser
+    headers: mySession.headers
   })
 
   await app.stop()
@@ -115,18 +108,18 @@ test('activate app - will activate an app as an admin', async function (t) {
 
   await app.start()
 
-  const testUser = await setupTestUserWithSession({
-    permissions: ['sso:auth_admin:update']
+  const myUser = await populateTestUser({
+    perms: ['sso:auth_admin:update']
   })
-
-  const testApp = await createTestApp()
+  const mySession = await populateTestSession(myUser)
+  const myApp = await populateTestApp()
 
   const response = await httpRequest({
-    url: `${url}/apps/${testApp.id}/activate`,
+    url: `${url}/apps/${myApp.id}/activate`,
     method: 'post',
     json: true,
     validateStatus: () => true,
-    headers: testUser
+    headers: mySession.headers
   })
 
   await app.stop()

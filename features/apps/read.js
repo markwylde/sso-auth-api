@@ -1,25 +1,25 @@
 const test = require('tape')
 
-const httpRequest = require('../support/httpRequest')
-const app = require('../support/app')
+const httpRequest = require('../_support/httpRequest')
+const app = require('../_support/app')
 
-const setupTestUserWithSession = require('../support/setupTestUserWithSession')
-const setupTestApps = require('../support/setupTestApps')
+const populateTestUser = require('../_support/populates/populateTestUser')
+const populateTestSession = require('../_support/populates/populateTestSession')
+const populateTestApp = require('../_support/populates/populateTestApp')
 
 const url = `http://localhost:${process.env.PORT}/v1`
 
-test('read app - will return 404 if session could not be found', async function (t) {
+test('read app - will return 404 if app could not be found', async function (t) {
   t.plan(1)
 
   await app.start()
 
-  const sessionHeaders = await setupTestUserWithSession({
-    permissions: []
-  })
+  const myUser = await populateTestUser()
+  const mySession = await populateTestSession(myUser)
 
   const response = await httpRequest({
     url: `${url}/apps/notexisting`,
-    headers: sessionHeaders,
+    headers: mySession.headers,
     method: 'get',
     json: true,
     validateStatus: () => true
@@ -35,16 +35,15 @@ test('read app - will return app when exists', async function (t) {
 
   await app.start()
 
-  const sessionHeaders = await setupTestUserWithSession({
-    permissions: ['sso:app:authorise']
+  const myUser = await populateTestUser({
+    perms: ['sso:app:authorise']
   })
-
-  const apps = await setupTestApps(1, { headers: sessionHeaders, activate: true })
-  const appId = apps[0].data.id
+  const mySession = await populateTestSession(myUser)
+  const myApp = await populateTestApp({ session: mySession })
 
   const response = await httpRequest({
-    url: `${url}/apps/${appId}`,
-    headers: sessionHeaders,
+    url: `${url}/apps/${myApp.id}`,
+    headers: mySession.headers,
     method: 'get',
     json: true,
     validateStatus: () => true
@@ -61,6 +60,6 @@ test('read app - will return app when exists', async function (t) {
   t.notOk(response.data.activation_url, 'activation_url is not returned')
   t.ok(response.data.user_id, 'user_id is returned')
   t.ok(response.data.date_activated, 'date_activated is not returned')
-  t.equal(response.data.title, 'testtitle1', 'title returned correctly')
+  t.equal(response.data.title, myApp.title, 'title returned correctly')
   t.equal(response.data.active, true, 'active returned correctly')
 })

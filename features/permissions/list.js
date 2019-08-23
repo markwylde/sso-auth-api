@@ -1,29 +1,21 @@
 const test = require('tape')
 
-const httpRequest = require('../support/httpRequest')
-const app = require('../support/app')
-const db = require('../../lib/services/database')
+const httpRequest = require('../_support/httpRequest')
+const app = require('../_support/app')
 
-const runFunctionMultipleTimes = require('../support/runFunctionMultipleTimes')
+const populateTestUser = require('../_support/populates/populateTestUser')
+const populateTestSession = require('../_support/populates/populateTestSession')
+const populateTestApp = require('../_support/populates/populateTestApp')
+const populateTestPermission = require('../_support/populates/populateTestPermission')
+
+const runFunctionMultipleTimes = require('../_support/runFunctionMultipleTimes')
 
 const url = `http://localhost:${process.env.PORT}/v1`
-
-async function setupTestPermissions (userCount) {
-  return runFunctionMultipleTimes(userCount, num => {
-    return db.table('permissions').insert({
-      id: `testapp:testpermission${num}`,
-      app_id: 'testapp',
-      permission: `testpermission${num}`,
-      date_created: new Date()
-    })
-  })
-}
 
 test('list permission - will show no permissions if none exist', async function (t) {
   t.plan(2)
 
   await app.start()
-  await setupTestPermissions(0)
 
   const response = await httpRequest(`${url}/permissions`, { json: true })
 
@@ -33,13 +25,34 @@ test('list permission - will show no permissions if none exist', async function 
   t.equal(response.data.length, 0, 'no permissions are returned')
 })
 
-test('list permission - will show five permissions', async function (t) {
+test('list permission - will show only owned apps permissions', async function (t) {
   t.plan(2)
 
   await app.start()
-  await setupTestPermissions(5)
 
-  const response = await httpRequest(`${url}/permissions`, { json: true })
+  async function scenario () {
+    const myUser = await populateTestUser({
+      perms: ['sso:app:authorise']
+    })
+    const mySession = await populateTestSession(myUser)
+    const myApp = await populateTestApp({ session: mySession })
+
+    await runFunctionMultipleTimes(5, () => {
+      return populateTestPermission({ app: myApp })
+    })
+
+    return mySession
+  }
+
+  // Create some scenarios that we don't own
+  await scenario()
+  await scenario()
+  const scenarioInstance2 = await scenario()
+
+  const response = await httpRequest(`${url}/permissions`, {
+    json: true,
+    headers: scenarioInstance2.headers
+  })
 
   await app.stop()
 
@@ -52,9 +65,16 @@ test('list permission - item has the correct properties', async function (t) {
 
   await app.start()
 
-  await setupTestPermissions(1)
+  const myUser = await populateTestUser({
+    perms: ['sso:app:authorise']
+  })
+  const mySession = await populateTestSession(myUser)
+  const myApp = await populateTestApp({ session: mySession })
+  await populateTestPermission({ app: myApp })
 
-  const response = await httpRequest(`${url}/permissions`, { json: true })
+  const response = await httpRequest(`${url}/permissions`, {
+    json: true, headers: mySession.headers
+  })
 
   await app.stop()
 

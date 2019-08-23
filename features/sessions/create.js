@@ -1,20 +1,12 @@
 const test = require('tape')
 
-const httpRequest = require('../support/httpRequest')
-const app = require('../support/app')
+const httpRequest = require('../_support/httpRequest')
+const app = require('../_support/app')
 const db = require('../../lib/services/database')
-const { cryptPassword } = require('../../lib/services/crypt')
+
+const populateTestUser = require('../_support/populates/populateTestUser')
 
 const url = `http://localhost:${process.env.PORT}/v1`
-
-async function setupTestUser () {
-  return db.table('users').insert({
-    id: `testuser`,
-    username: `testuser`,
-    password: await cryptPassword('testpass'),
-    date_created: new Date()
-  })
-}
 
 test('create session - will return validation error', async function (t) {
   t.plan(4)
@@ -40,7 +32,7 @@ test('create session - will return session record', async function (t) {
   t.plan(4)
 
   await app.start()
-  await setupTestUser()
+  const myUser = await populateTestUser()
 
   const response = await httpRequest({
     url: `${url}/sessions`,
@@ -48,8 +40,8 @@ test('create session - will return session record', async function (t) {
     json: true,
     validateStatus: () => true,
     data: {
-      username: 'testuser',
-      password: 'testpass'
+      username: myUser.username,
+      password: myUser.password
     }
   })
 
@@ -65,16 +57,16 @@ test('create session - will create db record', async function (t) {
   t.plan(5)
 
   await app.start()
-  await setupTestUser()
+
+  const myUser = await populateTestUser()
 
   const response = await httpRequest({
     url: `${url}/sessions`,
     method: 'post',
     json: true,
-    validateStatus: () => true,
     data: {
-      username: 'testuser',
-      password: 'testpass'
+      username: myUser.username,
+      password: myUser.password
     }
   })
 
@@ -83,7 +75,7 @@ test('create session - will create db record', async function (t) {
   await app.stop()
 
   t.equal(response.status, 201, '201 status returned')
-  t.equal(dbRecord.user_id, 'testuser', 'db record had correct user property')
+  t.equal(dbRecord.user_id, myUser.id, 'db record had correct user property')
   t.equal(dbRecord.app_id, 'sso', 'db record had correct app id')
   t.equal(dbRecord.id, response.data.sessionId, 'db record had correct id property')
   t.equal(dbRecord.secret, response.data.sessionSecret, 'db record had correct secret property')

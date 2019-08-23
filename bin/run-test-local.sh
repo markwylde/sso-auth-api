@@ -17,7 +17,7 @@ existingContainer=`docker ps -qf name=featuretestdb`
 
 if [ -z "$existingContainer" ]
 then
-  docker run -d --name featuretestdb rethinkdb
+  docker run -dp 8080:8080 --name featuretestdb rethinkdb
   sleep 1
   docker run -it -v `pwd`:/app --link featuretestdb -e DB_HOST=featuretestdb -e DB_NAME=featuretests msplat/auth-api:local npm run migrate
 fi

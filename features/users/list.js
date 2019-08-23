@@ -1,39 +1,26 @@
 const test = require('tape')
 
-const httpRequest = require('../support/httpRequest')
-const app = require('../support/app')
-const db = require('../../lib/services/database')
+const httpRequest = require('../_support/httpRequest')
+const app = require('../_support/app')
 
-const setupTestUserWithSession = require('../support/setupTestUserWithSession')
-const runFunctionMultipleTimes = require('../support/runFunctionMultipleTimes')
+const populateTestUser = require('../_support/populates/populateTestUser')
+const populateTestSession = require('../_support/populates/populateTestSession')
+const runFunctionMultipleTimes = require('../_support/runFunctionMultipleTimes')
 
 const url = `http://localhost:${process.env.PORT}/v1`
-
-async function setupTestUsers (userCount) {
-  return runFunctionMultipleTimes(userCount, num => {
-    return db.table('users').insert({
-      id: `testuser${num}`,
-      username: `testuser${num}`,
-      password: `testpass`,
-      perms: ['test:test'],
-      date_created: new Date()
-    })
-  })
-}
 
 test('list user - will return unauthorised if missing permission', async function (t) {
   t.plan(2)
 
   await app.start()
 
-  const sessionHeaders = await setupTestUserWithSession({
-    permissions: []
-  })
+  const myUser = await populateTestUser()
+  const mySession = await populateTestSession(myUser)
 
   const response = await httpRequest(`${url}/users`, {
     json: true,
     validateStatus: () => true,
-    headers: sessionHeaders
+    headers: mySession.headers
   })
 
   await app.stop()
@@ -47,11 +34,12 @@ test('list user - will show one user if only one exists', async function (t) {
 
   await app.start()
 
-  const sessionHeaders = await setupTestUserWithSession({
-    permissions: ['sso:auth_admin:read']
+  const myUser = await populateTestUser({
+    perms: ['sso:auth_admin:read']
   })
+  const mySession = await populateTestSession(myUser)
 
-  const response = await httpRequest(`${url}/users`, { json: true, headers: sessionHeaders })
+  const response = await httpRequest(`${url}/users`, { json: true, headers: mySession.headers })
 
   await app.stop()
 
@@ -64,13 +52,16 @@ test('list user - will show five users', async function (t) {
 
   await app.start()
 
-  const sessionHeaders = await setupTestUserWithSession({
-    permissions: ['sso:auth_admin:read']
+  runFunctionMultipleTimes(4, () => {
+    return populateTestUser()
   })
 
-  await setupTestUsers(4) // + 1 authorised user to execute the test
+  const myUser = await populateTestUser({
+    perms: ['sso:auth_admin:read']
+  })
+  const mySession = await populateTestSession(myUser)
 
-  const response = await httpRequest(`${url}/users`, { json: true, headers: sessionHeaders })
+  const response = await httpRequest(`${url}/users`, { json: true, headers: mySession.headers })
 
   await app.stop()
 
@@ -83,13 +74,12 @@ test('list user - item has the correct properties', async function (t) {
 
   await app.start()
 
-  const sessionHeaders = await setupTestUserWithSession({
-    permissions: ['sso:auth_admin:read']
+  const myUser = await populateTestUser({
+    perms: ['sso:auth_admin:read']
   })
+  const mySession = await populateTestSession(myUser)
 
-  await setupTestUsers(1)
-
-  const response = await httpRequest(`${url}/users`, { json: true, headers: sessionHeaders })
+  const response = await httpRequest(`${url}/users`, { json: true, headers: mySession.headers })
 
   await app.stop()
 

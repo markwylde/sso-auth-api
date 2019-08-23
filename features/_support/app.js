@@ -18,7 +18,7 @@ async function start () {
 }
 
 async function stop () {
-  await cleanDb()
+  // await cleanDb()
   app.stop()
 }
 

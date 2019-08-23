@@ -1,26 +1,26 @@
 const test = require('tape')
 
-const httpRequest = require('../../support/httpRequest')
-const app = require('../../support/app')
+const httpRequest = require('../../_support/httpRequest')
+const app = require('../../_support/app')
 
-const setupTestUserWithSession = require('../../support/setupTestUserWithSession')
-const setupTestApps = require('../../support/setupTestApps')
+const populateTestUser = require('../../_support/populates/populateTestUser')
+const populateTestSession = require('../../_support/populates/populateTestSession')
+const populateTestApp = require('../../_support/populates/populateTestApp')
 
 const url = `http://localhost:${process.env.PORT}/v1`
 
-test('list sessions - will return unauthorised if no user', async function (t) {
+test('list app sessions - will return unauthorised if no user', async function (t) {
   t.plan(2)
 
   await app.start()
 
-  const sessionHeaders = await setupTestUserWithSession({
-    permissions: []
+  const myUser = await populateTestUser({
+    perms: ['sso:app:authorise']
   })
+  const mySession = await populateTestSession(myUser)
+  const myApp = await populateTestApp({ session: mySession })
 
-  const apps = await setupTestApps(1, { headers: sessionHeaders, activate: true })
-  const appId = apps[0].data.id
-
-  const response = await httpRequest(`${url}/apps/${appId}/sessions`, {
+  const response = await httpRequest(`${url}/apps/${myApp.id}/sessions`, {
     json: true,
     validateStatus: () => true
   })
@@ -31,26 +31,24 @@ test('list sessions - will return unauthorised if no user', async function (t) {
   t.deepEqual(response.data, {}, 'nothing is returned')
 })
 
-test('list sessions - will return unauthorised if wrong user', async function (t) {
+test('list app sessions - will return unauthorised if wrong user', async function (t) {
   t.plan(2)
 
   await app.start()
 
-  const sessionHeaders = await setupTestUserWithSession({
-    permissions: ['sso:app:authorise']
+  const myUser = await populateTestUser({
+    perms: ['sso:app:authorise']
   })
+  const mySession = await populateTestSession(myUser)
+  const myApp = await populateTestApp({ session: mySession })
 
-  const anotherSessionHeaders = await setupTestUserWithSession({
-    permissions: []
-  })
+  const anotherUser = await populateTestUser()
+  const anotherSession = await populateTestSession(anotherUser)
 
-  const apps = await setupTestApps(1, { headers: sessionHeaders, activate: true })
-  const appId = apps[0].data.id
-
-  const response = await httpRequest(`${url}/apps/${appId}/sessions`, {
+  const response = await httpRequest(`${url}/apps/${myApp.id}/sessions`, {
     json: true,
     validateStatus: () => true,
-    headers: anotherSessionHeaders
+    headers: anotherSession.headers
   })
 
   await app.stop()
@@ -59,19 +57,20 @@ test('list sessions - will return unauthorised if wrong user', async function (t
   t.deepEqual(response.data, {}, 'nothing is returned')
 })
 
-test('list sessions - will return not found if no app', async function (t) {
+test('list app sessions - will return not found if no app', async function (t) {
   t.plan(2)
 
   await app.start()
 
-  const sessionHeaders = await setupTestUserWithSession({
-    permissions: []
+  const myUser = await populateTestUser({
+    perms: ['sso:app:authorise']
   })
+  const mySession = await populateTestSession(myUser)
 
   const response = await httpRequest(`${url}/apps/notreal/sessions`, {
     json: true,
     validateStatus: () => true,
-    headers: sessionHeaders
+    headers: mySession.headers
   })
 
   await app.stop()
@@ -80,59 +79,54 @@ test('list sessions - will return not found if no app', async function (t) {
   t.deepEqual(response.data, {}, 'nothing is returned')
 })
 
-test('list sessions - will return no apps sessions', async function (t) {
+test('list app sessions - will return no apps sessions', async function (t) {
   t.plan(2)
 
   await app.start()
 
-  const sessionHeaders = await setupTestUserWithSession({
-    permissions: ['sso:app:authorise']
+  const myUser = await populateTestUser({
+    perms: ['sso:app:authorise']
   })
+  const mySession = await populateTestSession(myUser)
+  const myApp = await populateTestApp({ session: mySession })
 
-  const apps = await setupTestApps(1, { headers: sessionHeaders, activate: true })
-  const appId = apps[0].data.id
-
-  const response = await httpRequest(`${url}/apps/${appId}/sessions`, {
+  const response = await httpRequest(`${url}/apps/${myApp.id}/sessions`, {
     json: true,
     validateStatus: () => true,
-    headers: sessionHeaders
+    headers: mySession.headers
   })
 
   await app.stop()
-
-  console.log(response.data)
 
   t.equal(response.status, 200, '200 status returned')
   t.deepEqual(response.data.length, 0, '0 sessions returned is returned')
 })
 
-test('list sessions - will return apps sessions', async function (t) {
+test('list app sessions - will return apps sessions', async function (t) {
   t.plan(6)
 
   await app.start()
 
-  const sessionHeaders = await setupTestUserWithSession({
-    permissions: ['sso:app:authorise']
+  const myUser = await populateTestUser({
+    perms: ['sso:app:authorise']
   })
+  const mySession = await populateTestSession(myUser)
+  const myApp = await populateTestApp({ session: mySession })
 
-  const apps = await setupTestApps(1, { headers: sessionHeaders, activate: true })
-  const appId = apps[0].data.id
-  const appSecret = apps[0].data.secret
-
-  await httpRequest(`${url}/apps/${appId}/sessions`, {
+  await httpRequest(`${url}/apps/${myApp.id}/sessions`, {
     method: 'post',
     json: true,
     validateStatus: () => true,
     headers: {
-      'X-App-Secret': appSecret,
-      ...sessionHeaders
+      'X-App-Secret': myApp.secret,
+      ...mySession.headers
     }
   })
 
-  const response = await httpRequest(`${url}/apps/${appId}/sessions`, {
+  const response = await httpRequest(`${url}/apps/${myApp.id}/sessions`, {
     json: true,
     validateStatus: () => true,
-    headers: sessionHeaders
+    headers: mySession.headers
   })
 
   await app.stop()

@@ -1,28 +1,28 @@
 const test = require('tape')
 
-const httpRequest = require('../../support/httpRequest')
-const app = require('../../support/app')
+const httpRequest = require('../../_support/httpRequest')
+const app = require('../../_support/app')
 
-const setupTestApps = require('../../support/setupTestApps')
-const setupTestUserWithSession = require('../../support/setupTestUserWithSession')
+const populateTestUser = require('../../_support/populates/populateTestUser')
+const populateTestSession = require('../../_support/populates/populateTestSession')
+const populateTestApp = require('../../_support/populates/populateTestApp')
 
 const url = `http://localhost:${process.env.PORT}/v1`
 
-test('create session - will return error if app not found', async function (t) {
+test('create app session - will return error if app not found', async function (t) {
   t.plan(1)
 
   await app.start()
 
-  const sessionHeaders = await setupTestUserWithSession({
-    permissions: []
-  })
+  const myUser = await populateTestUser()
+  const mySession = await populateTestSession(myUser)
 
   const response = await httpRequest({
     url: `${url}/apps/notexists/sessions`,
     method: 'post',
     json: true,
     validateStatus: () => true,
-    headers: sessionHeaders
+    headers: mySession.headers
   })
 
   await app.stop()
@@ -30,24 +30,23 @@ test('create session - will return error if app not found', async function (t) {
   t.equal(response.status, 404, '404 status returned')
 })
 
-test('create session - will return error if missing app secret', async function (t) {
+test('create app session - will return error if missing app secret', async function (t) {
   t.plan(2)
 
   await app.start()
 
-  const sessionHeaders = await setupTestUserWithSession({
-    permissions: []
+  const myUser = await populateTestUser({
+    perms: ['sso:app:authorise']
   })
-
-  const apps = await setupTestApps(1, { headers: sessionHeaders, activate: true })
-  const appId = apps[0].data.id
+  const mySession = await populateTestSession(myUser)
+  const myApp = await populateTestApp({ session: mySession })
 
   const response = await httpRequest({
-    url: `${url}/apps/${appId}/sessions`,
+    url: `${url}/apps/${myApp.id}/sessions`,
     method: 'post',
     json: true,
     validateStatus: () => true,
-    headers: sessionHeaders
+    headers: mySession.headers
   })
 
   await app.stop()
@@ -56,26 +55,24 @@ test('create session - will return error if missing app secret', async function 
   t.deepEqual(Object.keys(response.data), {}, 'no body returned')
 })
 
-test('create session - will return error if missing app secret', async function (t) {
+test('create app session - will create session', async function (t) {
   t.plan(3)
 
   await app.start()
 
-  const sessionHeaders = await setupTestUserWithSession({
-    permissions: []
+  const myUser = await populateTestUser({
+    perms: ['sso:app:authorise']
   })
-
-  const apps = await setupTestApps(1, { headers: sessionHeaders, activate: true })
-  const appId = apps[0].data.id
-  const appSecret = apps[0].data.secret
+  const mySession = await populateTestSession(myUser)
+  const myApp = await populateTestApp({ session: mySession })
 
   const response = await httpRequest({
-    url: `${url}/apps/${appId}/sessions`,
+    url: `${url}/apps/${myApp.id}/sessions`,
     method: 'post',
     json: true,
     validateStatus: () => true,
     headers: {
-      'X-App-Secret': appSecret
+      'X-App-Secret': myApp.secret
     }
   })
 

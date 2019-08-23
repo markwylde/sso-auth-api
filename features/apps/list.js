@@ -1,10 +1,11 @@
 const test = require('tape')
 
-const httpRequest = require('../support/httpRequest')
-const app = require('../support/app')
+const httpRequest = require('../_support/httpRequest')
+const app = require('../_support/app')
 
-const setupTestUserWithSession = require('../support/setupTestUserWithSession')
-const setupTestApps = require('../support/setupTestApps')
+const populateTestUser = require('../_support/populates/populateTestUser')
+const populateTestSession = require('../_support/populates/populateTestSession')
+const populateTestApp = require('../_support/populates/populateTestApp')
 
 const url = `http://localhost:${process.env.PORT}/v1`
 
@@ -29,14 +30,27 @@ test('list app - will show one own app', async function (t) {
 
   await app.start()
 
-  const sessionHeaders = await setupTestUserWithSession({
-    permissions: ['sso:app:authorise']
+  async function scenario () {
+    const myUser = await populateTestUser({
+      perms: ['sso:app:authorise']
+    })
+    const session = await populateTestSession(myUser)
+    const app = await populateTestApp({ session })
+
+    return {
+      session,
+      app
+    }
+  }
+
+  // Create some scenarios that we don't own
+  await scenario()
+  await scenario()
+  const scenarioInstance = await scenario()
+
+  const response = await httpRequest(`${url}/apps`, {
+    json: true, headers: scenarioInstance.session.headers
   })
-
-  await setupTestApps(1, { headers: sessionHeaders, activate: true })
-  await setupTestApps(5)
-
-  const response = await httpRequest(`${url}/apps`, { json: true, headers: sessionHeaders })
 
   await app.stop()
 
@@ -50,7 +64,7 @@ test('list app - will show one own app', async function (t) {
   t.notOk(response.data[0].activation_url, 'activation_url is not returned')
   t.ok(response.data[0].user_id, 'user_id is not returned')
   t.ok(response.data[0].date_activated, 'date_activated is not returned')
-  t.equal(response.data[0].title, 'testtitle1', 'title returned correctly')
+  t.equal(response.data[0].title, scenarioInstance.app.title, 'title returned correctly')
   t.equal(response.data[0].active, true, 'active returned correctly')
 })
 
@@ -59,14 +73,16 @@ test('list app - will show multiple own apps', async function (t) {
 
   await app.start()
 
-  const sessionHeaders = await setupTestUserWithSession({
-    permissions: ['sso:app:authorise']
+  const myUser = await populateTestUser({
+    perms: ['sso:app:authorise']
   })
+  const mySession = await populateTestSession(myUser)
+  await populateTestApp({ session: mySession })
+  await populateTestApp({ session: mySession })
 
-  await setupTestApps(2, { headers: sessionHeaders, activate: true })
-  await setupTestApps(5)
-
-  const response = await httpRequest(`${url}/apps`, { json: true, headers: sessionHeaders })
+  const response = await httpRequest(`${url}/apps`, {
+    json: true, headers: mySession.headers
+  })
 
   await app.stop()
 
@@ -80,17 +96,20 @@ test('list app - will show all apps to admins', async function (t) {
 
   await app.start()
 
-  const sessionHeaders = await setupTestUserWithSession({
-    permissions: ['sso:auth_admin:read', 'sso:auth_admin:update']
+  const myUser = await populateTestUser({
+    perms: ['sso:auth_admin:read', 'sso:auth_admin:update']
   })
+  const mySession = await populateTestSession(myUser)
+  await populateTestApp({ session: mySession })
+  await populateTestApp()
+  await populateTestApp()
 
-  await setupTestApps(1, { headers: sessionHeaders, activate: true, prefix: 'authed' })
-  await setupTestApps(5)
-
-  const response = await httpRequest(`${url}/apps`, { json: true, headers: sessionHeaders })
+  const response = await httpRequest(`${url}/apps`, {
+    json: true, headers: mySession.headers
+  })
 
   await app.stop()
 
   t.equal(response.status, 200, '200 status returned')
-  t.equal(response.data.length, 6, '6 apps returned')
+  t.equal(response.data.length, 3, '3 apps returned')
 })
