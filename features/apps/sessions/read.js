@@ -46,7 +46,7 @@ test('read app session - will return unauthorised if wrong secret provided', asy
   const myApp = await populateTestApp({ session: mySession })
   const myAppSession = await populateTestAppSession({ app: myApp })
 
-  let response = await httpRequest({
+  const response = await httpRequest({
     url: `${url}/apps/${myApp.id}/sessions/current`,
     json: true,
     headers: myAppSession.headers,
@@ -70,7 +70,7 @@ test('read app session - will return session if exists', async function (t) {
   const myApp = await populateTestApp({ session: mySession })
   const myAppSession = await populateTestAppSession({ app: myApp })
 
-  let response = await httpRequest({
+  const response = await httpRequest({
     url: `${url}/apps/${myApp.id}/sessions/current`,
     json: true,
     headers: {
