@@ -80,3 +80,31 @@ test('create session - will create db record', async function (t) {
   t.equal(dbRecord.id, response.data.sessionId, 'db record had correct id property')
   t.equal(dbRecord.secret, response.data.sessionSecret, 'db record had correct secret property')
 })
+
+test('create session - will create db record if username regardless of case', async function (t) {
+  t.plan(5)
+
+  await app.start()
+
+  const myUser = await populateTestUser()
+
+  const response = await httpRequest({
+    url: `${url}/sessions`,
+    method: 'post',
+    json: true,
+    data: {
+      username: myUser.username.toUpperCase(),
+      password: myUser.password
+    }
+  })
+
+  const dbRecord = await db.table('sessions').get(response.data.sessionId)
+
+  await app.stop()
+
+  t.equal(response.status, 201, '201 status returned')
+  t.equal(dbRecord.user_id, myUser.id, 'db record had correct user property')
+  t.equal(dbRecord.app_id, 'sso', 'db record had correct app id')
+  t.equal(dbRecord.id, response.data.sessionId, 'db record had correct id property')
+  t.equal(dbRecord.secret, response.data.sessionSecret, 'db record had correct secret property')
+})

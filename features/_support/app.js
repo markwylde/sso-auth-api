@@ -3,6 +3,11 @@ const test = require('tape')
 const app = require('../../lib')
 const db = require('../../lib/services/database')
 
+process.on('unhandledRejection', error => {
+  console.log(error)
+  process.exit()
+})
+
 function cleanDb () {
   return Promise.all([
     db.table('apps').delete(),
@@ -18,11 +23,10 @@ async function start () {
 }
 
 async function stop () {
-  // await cleanDb()
   app.stop()
 }
 
-test.onFinish(db.destroy)
+test.onFinish(() => db.destroy())
 
 module.exports = {
   start,

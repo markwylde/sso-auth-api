@@ -35,7 +35,7 @@ test('list app - will show one own app', async function (t) {
       perms: ['sso:app:authorise']
     })
     const session = await populateTestSession(myUser)
-    const app = await populateTestApp({ session })
+    const app = await populateTestApp({ session, owner: myUser })
 
     return {
       session,
@@ -77,8 +77,8 @@ test('list app - will show multiple own apps', async function (t) {
     perms: ['sso:app:authorise']
   })
   const mySession = await populateTestSession(myUser)
-  await populateTestApp({ session: mySession })
-  await populateTestApp({ session: mySession })
+  await populateTestApp({ session: mySession, owner: myUser })
+  await populateTestApp({ session: mySession, owner: myUser  })
 
   const response = await httpRequest(`${url}/apps`, {
     json: true, headers: mySession.headers
@@ -87,7 +87,7 @@ test('list app - will show multiple own apps', async function (t) {
   await app.stop()
 
   t.equal(response.status, 200, '200 status returned')
-  t.equal(response.data.length, 2, '2 apps returned')
+  t.equal(response.data.length, 3, '3 apps (2 + sso) returned')
   t.equal(Object.keys(response.data[0]).length, 6, 'six fields returned')
 })
 
@@ -100,7 +100,7 @@ test('list app - will show all apps to admins', async function (t) {
     perms: ['sso:auth_admin:read', 'sso:auth_admin:update']
   })
   const mySession = await populateTestSession(myUser)
-  await populateTestApp({ session: mySession })
+  await populateTestApp({ session: mySession, owner: myUser })
   await populateTestApp()
   await populateTestApp()
 
@@ -111,5 +111,5 @@ test('list app - will show all apps to admins', async function (t) {
   await app.stop()
 
   t.equal(response.status, 200, '200 status returned')
-  t.equal(response.data.length, 3, '3 apps returned')
+  t.equal(response.data.length, 4, '4 apps (3 + sso) returned')
 })

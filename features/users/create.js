@@ -81,6 +81,58 @@ test('create user - will return validation error for duplicate username', async 
   t.ok(response.data.errors.username.includes('already exists'), 'username already exists')
 })
 
+test('create user - will return validation error for case sensitive duplicate username', async function (t) {
+  t.plan(3)
+
+  await app.start()
+
+  await db.table('users').insert({
+    username: 'existinguser'
+  })
+
+  const response = await httpRequest({
+    url: `${url}/users`,
+    method: 'post',
+    json: true,
+    validateStatus: () => true,
+    data: {
+      username: 'Existinguser',
+      password: 'examplepassword',
+      password_confirmation: 'examplepassword'
+    }
+  })
+
+  await app.stop()
+
+  t.equal(response.status, 422, '422 status returned')
+  t.equal(Object.keys(response.data.errors).length, 1, 'one error existed')
+  t.ok(response.data.errors.username.includes('already exists'), 'username already exists')
+})
+
+test('create user - will return validation error for wrong confirmation password', async function (t) {
+  t.plan(3)
+
+  await app.start()
+
+  const response = await httpRequest({
+    url: `${url}/users`,
+    method: 'post',
+    json: true,
+    validateStatus: () => true,
+    data: {
+      username: 'existinguser',
+      password: 'examplepassword',
+      password_confirmation: 'differentpassword'
+    }
+  })
+
+  await app.stop()
+
+  t.equal(response.status, 422, '422 status returned')
+  t.equal(Object.keys(response.data.errors).length, 1, 'one error existed')
+  t.ok(response.data.errors.password.includes('not match'), 'password did not match')
+})
+
 test('create user - will create and return valid user', async function (t) {
   t.plan(5)
 

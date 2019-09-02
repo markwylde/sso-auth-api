@@ -18,7 +18,7 @@ test('activate app - no session will return unauthorised', async function (t) {
     perms: ['sso:app:authorise']
   })
   const mySession = await populateTestSession(myUser)
-  const myApp = await populateTestApp({ session: mySession })
+  const myApp = await populateTestApp({ owner: myUser, session: mySession })
 
   const response = await httpRequest({
     url: `${url}/apps/${myApp.id}/activate`,
@@ -41,10 +41,9 @@ test('activate app - no permission will return unauthorised', async function (t)
     perms: []
   })
   const mySession = await populateTestSession(myUser)
-  const myApp = await populateTestApp()
 
   const response = await httpRequest({
-    url: `${url}/apps/${myApp.id}/activate`,
+    url: `${url}/apps/someapp/activate`,
     method: 'post',
     json: true,
     validateStatus: () => true,
@@ -65,6 +64,7 @@ test('activate app - will return not found error', async function (t) {
     perms: ['sso:app:authorise']
   })
   const mySession = await populateTestSession(myUser)
+  const myApp = await populateTestApp({ owner: myUser, session: mySession })
 
   const response = await httpRequest({
     url: `${url}/apps/doesnotexist/activate`,
@@ -88,7 +88,7 @@ test('activate app - will activate an app', async function (t) {
     perms: ['sso:app:authorise']
   })
   const mySession = await populateTestSession(myUser)
-  const myApp = await populateTestApp()
+  const myApp = await populateTestApp({ owner: myUser, session: mySession })
 
   const response = await httpRequest({
     url: `${url}/apps/${myApp.id}/activate`,
@@ -112,7 +112,7 @@ test('activate app - will activate an app as an admin', async function (t) {
     perms: ['sso:auth_admin:update']
   })
   const mySession = await populateTestSession(myUser)
-  const myApp = await populateTestApp()
+  const myApp = await populateTestApp({ owner: myUser, session: mySession })
 
   const response = await httpRequest({
     url: `${url}/apps/${myApp.id}/activate`,

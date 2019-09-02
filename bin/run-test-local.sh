@@ -6,7 +6,7 @@ if [ $# -eq 0 ]
     exit 
 fi
 
-existingContainer=`docker rm -f featuretestrunner`
+dockerHost=`docker-machine ip local`
 
 if [ ! -z "$existingContainer" ]
 then
@@ -17,9 +17,9 @@ existingContainer=`docker ps -qf name=featuretestdb`
 
 if [ -z "$existingContainer" ]
 then
-  docker run -dp 8080:8080 --name featuretestdb rethinkdb
+  docker run -d -p 8181:8080 -p 28115:28015 --name featuretestdb rethinkdb
   sleep 1
-  docker run -it -v `pwd`:/app --link featuretestdb -e DB_HOST=featuretestdb -e DB_NAME=featuretests msplat/auth-api:local npm run migrate
+  PORT=8011 DB_HOST=$dockerHost DB_PORT=28115 DB_NAME=featuretests npm run migrate
 fi
 
-docker run --name featuretestrunner -it -v `pwd`:/app --link featuretestdb -e PORT=8011 -e DB_HOST=featuretestdb -e DB_NAME=featuretests msplat/auth-api:local $*
+PORT=8011 DB_HOST=$dockerHost DB_PORT=28115 DB_NAME=featuretests $@

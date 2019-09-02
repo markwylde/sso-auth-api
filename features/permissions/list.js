@@ -35,7 +35,7 @@ test('list permission - will show only owned apps permissions', async function (
       perms: ['sso:app:authorise']
     })
     const mySession = await populateTestSession(myUser)
-    const myApp = await populateTestApp({ session: mySession })
+    const myApp = await populateTestApp({ session: mySession, owner: myUser })
 
     await runFunctionMultipleTimes(5, () => {
       return populateTestPermission({ app: myApp })
@@ -69,7 +69,7 @@ test('list permission - item has the correct properties', async function (t) {
     perms: ['sso:app:authorise']
   })
   const mySession = await populateTestSession(myUser)
-  const myApp = await populateTestApp({ session: mySession })
+  const myApp = await populateTestApp({ session: mySession, owner: myUser })
   await populateTestPermission({ app: myApp })
 
   const response = await httpRequest(`${url}/permissions`, {

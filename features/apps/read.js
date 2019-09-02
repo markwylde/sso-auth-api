@@ -39,7 +39,7 @@ test('read app - will return app when exists', async function (t) {
     perms: ['sso:app:authorise']
   })
   const mySession = await populateTestSession(myUser)
-  const myApp = await populateTestApp({ session: mySession })
+  const myApp = await populateTestApp({ session: mySession, owner: myUser })
 
   const response = await httpRequest({
     url: `${url}/apps/${myApp.id}`,

@@ -7,10 +7,11 @@
     "start": "node index",
     "start:dev": "nodemon -L --polling-interval 500 src",
     "migrate": "migrator up",
+    "test:features": "node --trace-warnings node_modules/.bin/tape features/**/*.js",
     "test:features:watch": "nodemon -q -x 'clear && npm run test:features'",
-    "test:features": "tape 'features/**/*.js'",
+    "test:features:inspect": "node --trace-warnings --inspect-brk node_modules/.bin/tape features/**/*.js",
     "test:units:watch": "nodemon -q -x 'clear && npm run test:units'",
-    "test:units": "tape 'tests/**/*.js'",
+    "test:units": "tape 'test/**/*.js'",
     "test": "npm run test:features && npm run test:units"
   },
   "repository": {

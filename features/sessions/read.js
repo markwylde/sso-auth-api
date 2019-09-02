@@ -6,6 +6,9 @@ const db = require('../../lib/services/database')
 
 const populateTestUser = require('../_support/populates/populateTestUser')
 const populateTestSession = require('../_support/populates/populateTestSession')
+const populateTestApp = require('../_support/populates/populateTestApp')
+const populateTestAppSession = require('../_support/populates/populateTestAppSession')
+const populateTestPermission = require('../_support/populates/populateTestPermission')
 
 const url = `http://localhost:${process.env.PORT}/v1`
 
@@ -111,9 +114,15 @@ test('read session - will return perms with session', async function (t) {
 
   await app.start()
   const myUser = await populateTestUser({
-    perms: ['test:perm']
+    perms: ['sso:app:authorise']
   })
   const mySession = await populateTestSession(myUser)
+  const myApp = await populateTestApp({ session: mySession, owner: myUser })
+  const myAppPermission = await populateTestPermission({ app: myApp })
+
+  await db.table('users').get(myUser.id).update({
+    perms: [myAppPermission.id]
+  })
 
   const response = await httpRequest({
     url: `${url}/sessions/current`,
@@ -129,6 +138,6 @@ test('read session - will return perms with session', async function (t) {
   await app.stop()
 
   t.equal(response.status, 200, '200 status returned')
-  t.ok(response.data.perms, 'perms where returned')
-  t.equal(response.data.perms[0], 'test:perm', 'perms where returned')
+  t.ok(response.data.perms.length > 0, 'perms where returned')
+  t.equal(response.data.perms[0], myAppPermission.id, 'perms where returned')
 })

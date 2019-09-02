@@ -5,6 +5,7 @@ const app = require('../_support/app')
 
 const populateTestUser = require('../_support/populates/populateTestUser')
 const populateTestSession = require('../_support/populates/populateTestSession')
+const populateTestApp = require('../_support/populates/populateTestApp')
 const runFunctionMultipleTimes = require('../_support/runFunctionMultipleTimes')
 
 const url = `http://localhost:${process.env.PORT}/v1`
@@ -35,16 +36,20 @@ test('list user - will show one user if only one exists', async function (t) {
   await app.start()
 
   const myUser = await populateTestUser({
-    perms: ['sso:auth_admin:read']
+    perms: ['sso:app:authorise', 'sso:auth_admin:read']
   })
   const mySession = await populateTestSession(myUser)
+  const myApp = await populateTestApp({ owner: myUser, session: mySession })
 
-  const response = await httpRequest(`${url}/users`, { json: true, headers: mySession.headers })
+  const response = await httpRequest(`${url}/users`, {
+    json: true,
+    headers: mySession.headers
+  })
 
   await app.stop()
 
   t.equal(response.status, 200, '200 status returned')
-  t.equal(response.data.length, 1, 'no users are returned')
+  t.equal(response.data.length, 1, 'one user is returned')
 })
 
 test('list user - will show five users', async function (t) {
@@ -57,9 +62,10 @@ test('list user - will show five users', async function (t) {
   })
 
   const myUser = await populateTestUser({
-    perms: ['sso:auth_admin:read']
+    perms: ['sso:app:authorise', 'sso:auth_admin:read']
   })
   const mySession = await populateTestSession(myUser)
+  await populateTestApp({ owner: myUser, session: mySession })
 
   const response = await httpRequest(`${url}/users`, { json: true, headers: mySession.headers })
 
@@ -75,11 +81,15 @@ test('list user - item has the correct properties', async function (t) {
   await app.start()
 
   const myUser = await populateTestUser({
-    perms: ['sso:auth_admin:read']
+    perms: ['sso:app:authorise', 'sso:auth_admin:read']
   })
   const mySession = await populateTestSession(myUser)
+  await populateTestApp({ owner: myUser, session: mySession })
 
-  const response = await httpRequest(`${url}/users`, { json: true, headers: mySession.headers })
+  const response = await httpRequest(`${url}/users`, {
+    json: true,
+    headers: mySession.headers
+  })
 
   await app.stop()
 

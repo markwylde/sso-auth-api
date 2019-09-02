@@ -40,7 +40,7 @@ test('activate session - will return 404 if app session could not be found', asy
     perms: ['sso:app:authorise']
   })
   const mySession = await populateTestSession(myUser)
-  await populateTestApp({ session: mySession })
+  await populateTestApp({ session: mySession, owner: myUser })
 
   const response = await httpRequest({
     url: `${url}/sessions/current/activate?sessionId=notfound`,
@@ -64,7 +64,7 @@ test('activate session - will apply user to session successfully', async functio
     perms: ['sso:app:authorise']
   })
   const mySession = await populateTestSession(myUser)
-  const myApp = await populateTestApp({ session: mySession })
+  const myApp = await populateTestApp({ session: mySession, owner: myUser })
   const myAppSession = await populateTestAppSession({ app: myApp })
 
   const theirUser = await populateTestUser()
@@ -92,7 +92,7 @@ test('activate session - will fail to activate twice', async function (t) {
     perms: ['sso:app:authorise']
   })
   const mySession = await populateTestSession(myUser)
-  const myApp = await populateTestApp({ session: mySession })
+  const myApp = await populateTestApp({ session: mySession, owner: myUser })
   const myAppSession = await populateTestAppSession({ app: myApp })
 
   const theirUser = await populateTestUser()
