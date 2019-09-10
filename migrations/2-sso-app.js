@@ -5,7 +5,8 @@ module.exports = {
         id: 'sso',
         title: 'Authentication',
         date_created: new Date(),
-        user_id: 'genesis'
+        user_id: 'genesis',
+        active: true
       }),
       db.table('permissions').insert({
         id: 'sso:auth_admin:create',
