@@ -10,4 +10,4 @@ RUN npm install
 
 ADD . .
 
-ENTRYPOINT ["/app/bin/entrypoint.sh"]
+CMD ["/app/bin/entrypoint.sh"]

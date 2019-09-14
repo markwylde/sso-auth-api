@@ -1,0 +1,21 @@
+name: new_app
+
+properties:
+  title:
+    title: Title
+    type: string
+    minLength: 3
+
+  delegations:
+    title: Permission Delegations
+    type: array
+    items:
+      type: string
+
+  session_update_hook_url:
+    title: Session Update Hook URL
+    type: string
+    minLength: 3
+
+required:
+  - title
