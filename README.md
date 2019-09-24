@@ -101,6 +101,12 @@ This service provides an authentication api for user management.
     <td>/v1/apps/:appId/sessions</td>
     <td>Create a new app session for an app you can manage</td>
   </tr>
+  <tr>
+    <td><a href="https://www.github.com/markwylde/sso-auth-api">4.2</a></td>
+    <td>POST</td>
+    <td>/v1/apps/:appId/sessions/:sessionId/activate</td>
+    <td>Activate an app session</td>
+  </tr>
 
   <tr>
     <td colspan=4>
@@ -113,12 +119,6 @@ This service provides an authentication api for user management.
     <td>GET</td>
     <td>/v1/sessions/current</td>
     <td>Get information about your user session</td>
-  </tr>
-  <tr>
-    <td><a href="https://www.github.com/markwylde/sso-auth-api">4.2</a></td>
-    <td>POST</td>
-    <td>/v1/sessions/:id/activate</td>
-    <td>Activate an app session</td>
   </tr>
   <tr>
     <td><a href="https://www.github.com/markwylde/sso-auth-api">4.3</a></td>

@@ -16,7 +16,7 @@ test('activate session - will return 404 if session could not be found', async f
   await app.start()
 
   const response = await httpRequest({
-    url: `${url}/sessions/current/activate?sessionId=notfound`,
+    url: `${url}/apps/none/sessions/current/activate?sessionId=notfound`,
     headers: {
       'x-session-id': 'test',
       'x-session-secret': 'test'
@@ -43,7 +43,7 @@ test('activate session - will return 404 if app session could not be found', asy
   await populateTestApp({ session: mySession, owner: myUser })
 
   const response = await httpRequest({
-    url: `${url}/sessions/current/activate?sessionId=notfound`,
+    url: `${url}/apps/none/sessions/current/activate?sessionId=notfound`,
     headers: mySession.headers,
     method: 'get',
     json: true,
@@ -71,7 +71,7 @@ test('activate session - will apply user to session successfully', async functio
   const theirSession = await populateTestSession(theirUser)
 
   const response = await httpRequest({
-    url: `${url}/sessions/current/activate?sessionId=${myAppSession.sessionId}`,
+    url: `${url}/apps/${myApp.id}/sessions/current/activate?sessionId=${myAppSession.sessionId}`,
     headers: theirSession.headers,
     method: 'post',
     json: true,
@@ -99,7 +99,7 @@ test('activate session - will fail to activate twice', async function (t) {
   const theirSession = await populateTestSession(theirUser)
 
   await httpRequest({
-    url: `${url}/sessions/current/activate?sessionId=${myAppSession.sessionId}`,
+    url: `${url}/apps/${myApp.id}/sessions/current/activate?sessionId=${myAppSession.sessionId}`,
     headers: theirSession.headers,
     method: 'post',
     json: true,
@@ -107,7 +107,7 @@ test('activate session - will fail to activate twice', async function (t) {
   })
 
   const secondActivationRequest = await httpRequest({
-    url: `${url}/sessions/current/activate?sessionId=${myAppSession.sessionId}`,
+    url: `${url}/apps/${myApp.id}/sessions/current/activate?sessionId=${myAppSession.sessionId}`,
     headers: theirSession.headers,
     method: 'post',
     json: true,
