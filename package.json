@@ -21,17 +21,17 @@
   "author": "",
   "license": "GPL-3.0",
   "devDependencies": {
-    "nodemon": "^1.19.1",
+    "nodemon": "^1.19.2",
     "tap-spec": "^5.0.0",
-    "tape": "^4.11.0"
+    "tape": "^4.11.0",
+    "chance": "^1.1.0",
+    "axios": "^0.19.0"
   },
   "dependencies": {
-    "ajv": "^6.5.4",
+    "ajv": "^6.10.2",
     "ajv-errors": "^1.0.1",
-    "axios": "^0.19.0",
-    "chance": "^1.0.18",
     "generic-errors": "^2.1.0",
-    "js-yaml": "^3.12.0",
+    "js-yaml": "^3.13.1",
     "node-mini-migrations": "1.0.0",
     "rethinkdbdash": "^2.3.31",
     "route-parser": "0.0.5",
