@@ -28,7 +28,7 @@
     "axios": "^0.21.1"
   },
   "dependencies": {
-    "ajv": "^6.12.5",
+    "ajv": "^6.12.6",
     "ajv-errors": "^1.0.1",
     "generic-errors": "^2.2.0",
     "js-yaml": "^3.14.1",
