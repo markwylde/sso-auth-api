@@ -30,7 +30,7 @@
   "dependencies": {
     "ajv": "^6.12.6",
     "ajv-errors": "^1.0.1",
-    "generic-errors": "^2.2.1",
+    "generic-errors": "^2.3.0",
     "js-yaml": "^3.14.1",
     "node-mini-migrations": "1.3.0",
     "rethinkdbdash": "^2.3.31",
