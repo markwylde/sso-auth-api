@@ -1,12 +1,12 @@
 const test = require('tape')
 
-const httpRequest = require('../_support/httpRequest')
-const app = require('../_support/app')
+const httpRequest = require('../../_support/httpRequest')
+const app = require('../../_support/app')
 
-const populateTestUser = require('../_support/populates/populateTestUser')
-const populateTestSession = require('../_support/populates/populateTestSession')
-const populateTestApp = require('../_support/populates/populateTestApp')
-const populateTestAppSession = require('../_support/populates/populateTestAppSession')
+const populateTestUser = require('../../_support/populates/populateTestUser')
+const populateTestSession = require('../../_support/populates/populateTestSession')
+const populateTestApp = require('../../_support/populates/populateTestApp')
+const populateTestAppSession = require('../../_support/populates/populateTestAppSession')
 
 const url = `http://localhost:${process.env.PORT}/v1`
 
