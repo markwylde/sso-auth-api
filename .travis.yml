@@ -3,7 +3,7 @@ sudo: false
 services:
   - docker
 node_js:
-  - 11
+  - 16
 install:
   - docker pull rethinkdb
   - npm install

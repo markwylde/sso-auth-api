@@ -8,7 +8,7 @@ services:
     environment:
       DB_HOST: rethinkdb
       DEBUG_LOGGING: "true"
-      APP_PUBLIC_URL: https://sso.msplat.test
+      APP_PUBLIC_URL: https://sso.test
     tty: true
     volumes:
       - .:/app
@@ -17,8 +17,8 @@ services:
   rethinkdb:
     image: rethinkdb
     ports:
-      - 8181:8080
-      - 28115:28015
+      - 8080:8080
+      - 28015:28015
 
 secrets:
   jwt_token: 

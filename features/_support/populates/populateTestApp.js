@@ -1,5 +1,5 @@
 const chance = require('chance')()
-const uuidv4 = require('uuid/v4')
+const uuidv4 = require('uuid').v4
 
 const httpRequest = require('../httpRequest')
 const db = require('../../../lib/services/database')
